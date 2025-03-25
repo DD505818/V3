@@ -1,25 +1,26 @@
-# === STAGE 1: Builder ===
-FROM python:3.11-slim AS builder
+FROM python:3.11-slim
 
-WORKDIR /build
-
-COPY requirements.txt .
-RUN pip install --upgrade pip && pip wheel --no-cache-dir --wheel-dir /wheels -r requirements.txt
-
-# === STAGE 2: Runtime ===
-FROM python:3.11-slim AS runtime
-
+# 1. Create app directory
 WORKDIR /app
 
-COPY --from=builder /wheels /wheels
+# 2. Install system dependencies if needed
+# RUN apt-get update && apt-get install -y build-essential
+
+# 3. Copy requirement files, install Python deps
 COPY requirements.txt .
-COPY . /app
+RUN pip install --no-cache-dir -r requirements.txt
 
-RUN pip install --no-cache --no-index --find-links=/wheels -r requirements.txt
+# 4. Copy your project source
+COPY . .
 
-RUN chmod +x launch_vivi_ai.sh
+# 5. Expose the port where your app listens (e.g. 8080 or 8000)
+EXPOSE 8080
 
-RUN useradd -m viviuser
-USER viviuser
+# 6. Make start script executable
+RUN chmod +x start.sh
 
-CMD ["/bin/bash", "-c", "if [ ! -f .env ]; then python3 setup_env.py; fi && ./launch_vivi_ai.sh"]
+# 7. Provide a healthcheck script (optional but recommended)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s CMD curl -f http://localhost:8080/health || exit 1
+
+# 8. Launch the app
+CMD ["bash", "./start.sh"]
