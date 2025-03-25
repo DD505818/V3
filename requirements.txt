@@ -1,7 +1,1 @@
-next
-flask
-requests
-pandas
-scikit-learn
-web3
-python-dotenv
+cerberus
