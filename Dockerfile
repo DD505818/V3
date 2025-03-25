@@ -5,8 +5,8 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY vivi_env_init /vivi-env-init
-RUN pip install -e /vivi-env-init
+COPY vivi_env_init /vivi_env_init
+RUN pip install -e /vivi_env_init
 
 COPY . .
 
